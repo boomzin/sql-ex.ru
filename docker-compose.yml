@@ -13,7 +13,7 @@ services:
     volumes:
       - ./docker/pgdata:/var/lib/postgresql/data
     networks:
-      - app-network
+      - sql-ex-network
 
   flyway:
     container_name: flyway
