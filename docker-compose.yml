@@ -28,6 +28,7 @@ services:
       - postgres
     networks:
       - sql-ex-network
+    restart: "no"
 
 networks:
   sql-ex-network:

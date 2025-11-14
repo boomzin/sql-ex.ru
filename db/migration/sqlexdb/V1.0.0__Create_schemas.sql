@@ -1,4 +1,3 @@
-sql
 CREATE SCHEMA computer_firm;    -- Компьютерная фирма
 CREATE SCHEMA ships;            -- Корабли
 CREATE SCHEMA airport;          -- Аэропорты
