@@ -1,47 +1,37 @@
-CREATE TABLE football.Club (
-    club_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    city VARCHAR(50) NOT NULL,
-    foundation_year INTEGER NOT NULL,
-    coach VARCHAR(100) NOT NULL,
-    stadium VARCHAR(100) NOT NULL,
-    league VARCHAR(50) NOT NULL
+drop table if exists football.Lineups;
+drop table if exists football.Games;
+drop table if exists football.Players;
+
+create table football.Players
+(
+    player_id   int primary key,      -- номер на футболке
+    first_name  varchar(50) not null,
+    last_name   varchar(50) not null,
+    nickname    varchar(50) not null, -- имя на футболке
+    citizenship varchar(50),          -- гражданство, если NULL, то гражданин той страны, где проводится чемпионат
+    dob         date        not null, -- дата рождения
+    role        varchar(20) not null  -- амплуа, например, защитник
 );
 
-CREATE TABLE football.Player (
-    player_id SERIAL PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    position VARCHAR(2) NOT NULL CHECK (position IN ('GK', 'DF', 'MF', 'FW')),
-    birth_date DATE NOT NULL,
-    club_id INTEGER NOT NULL REFERENCES football.Club(club_id),
-    salary DECIMAL(10,2) NOT NULL,
-    cost DECIMAL(12,2) NOT NULL
+-- Игры
+create table football.Games
+(
+    game_id   int primary key,
+    team      varchar(30) not null, -- команда-соперник
+    city      varchar(30),          -- город, где проводится матч; NULL, если дома
+    goals     smallint,             -- голы, которые забил соперник; NULL, если не было забито
+    game_date timestamp   not null, -- дата/время матча
+    own       smallint              -- aвтоголы, null, если таких не было
 );
 
-CREATE TABLE football.Match (
-    match_id SERIAL PRIMARY KEY,
-    home_club_id INTEGER NOT NULL REFERENCES football.Club(club_id),
-    away_club_id INTEGER NOT NULL REFERENCES football.Club(club_id),
-    match_date DATE NOT NULL,
-    stadium VARCHAR(100) NOT NULL,
-    result CHAR(1) NOT NULL CHECK (result IN ('W', 'D', 'L')), -- W=победа дома, D=ничья, L=поражение дома
-    spectators INTEGER NOT NULL
-);
-
-CREATE TABLE football.Goal (
-    goal_id SERIAL PRIMARY KEY,
-    match_id INTEGER NOT NULL REFERENCES football.Match(match_id),
-    player_id INTEGER NOT NULL REFERENCES football.Player(player_id),
-    minute INTEGER NOT NULL CHECK (minute BETWEEN 1 AND 120),
-    type VARCHAR(20) CHECK (type IN ('regular', 'penalty', 'free-kick', 'header'))
-);
-
-CREATE TABLE football.Transfer (
-    transfer_id SERIAL PRIMARY KEY,
-    player_id INTEGER NOT NULL REFERENCES football.Player(player_id),
-    from_club_id INTEGER NOT NULL REFERENCES football.Club(club_id),
-    to_club_id INTEGER NOT NULL REFERENCES football.Club(club_id),
-    transfer_date DATE NOT NULL,
-    fee DECIMAL(12,2) NOT NULL
+-- Участие в игре
+create table football.Lineups
+(
+    start     char not NULL, -- 'B' - игрок вышел в стартовом составе, 'S' - в запасе
+    game_id   int references football.games,
+    player_id int references football.Players,
+    time_in   int,           -- число минут, проведенных игроком на поле; NULL, если не выходил.
+    goals     smallint,      -- число голов, которые игрок забил в матче; NULL, если не забивал
+    cards     char(2),       -- Y - желтая, Y2 - две желтых, R - красная, YR - желтая+красная; NULL, если карточек нет
+    primary key (game_id, player_id)
 );
